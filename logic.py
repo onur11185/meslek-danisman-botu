@@ -10,32 +10,41 @@ def calculate_career_scores(user):
     for career_name, data in careers.items():
         score = 0
 
+        
         for ilgi in user.get("ilgi", []):
             if ilgi in data.get("ilgi", []):
                 score += 2
 
+
         if user.get("yas") in data.get("yas", []):
-            score += 2  
+            score += 2
+
 
         if user.get("guc") in data.get("guc", []):
             score += 2
 
+
         if user.get("hedef") in data.get("hedef", []):
             score += 2
+
 
         if user.get("internet") in data.get("internet", []):
             score += 2
 
+
         if user.get("preference") in data.get("preference", []):
             score += 2
+
 
         if user.get("risk") in data.get("risk", []):
             score += 2
 
+
         if user.get("zaman") in data.get("zaman", []):
             score += 2
 
-        percentage = int((score / 16) * 100)
+
+        percentage = min(100, int((score / 16) * 100))
 
         results.append({
             "career": career_name,
@@ -44,7 +53,6 @@ def calculate_career_scores(user):
         })
 
     results.sort(key=lambda x: x["score"], reverse=True)
-
     return results[:3]
 
 
@@ -299,13 +307,19 @@ class TimeButton(Button):
         top_careers = calculate_career_scores(user)
 
         text = "🎯 **Sana en uygun kariyerler:**\n\n"
-
         for i, c in enumerate(top_careers, start=1):
-            text += f"{i}. {c['career']} — %{c['percent']}\n"
+            text += f"**{i}. {c['career']}** — %{c['percent']}\n"
             desc = careers.get(c['career'], {}).get("description", "")
             if desc:
-                text += f"{desc}\n\n"
-            else:
+                text += f"{desc}\n"
+
+            how_steps = careers.get(c['career'], {}).get("how", [])
+            if how_steps:
+                text += "     Nasıl başlarsın?\n"
+                for step in how_steps:
+                    text += f"      • {step}\n"
                 text += "\n"
+            else:
+                text += "\n" 
 
         await interaction.response.send_message(text, ephemeral=True)
